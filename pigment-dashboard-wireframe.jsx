@@ -27,11 +27,11 @@ const COLORS = {
 
 // ─── Data ───
 const todayStats = {
-  turnovers: 6,
+  turnovers: 3,
   activeBookings: 28,
   checkInsToday: 4,
-  checkOutsToday: 6,
-  needsAttention: 3,
+  checkOutsToday: 3,
+  needsAttention: 4,
   agentActions: 23,
 };
 
@@ -43,9 +43,9 @@ const initialProperties = [
     status: "crisis",
     statusLabel: "Turnover at risk",
     urgency: "high",
-    detail: "Cleaner cancelled · Backup found: Léa (4.8★) · Starts 10:30",
+    detail: "Cleaner cancelled · Backup found: Lea (4.8★) · Starts 10:30",
     agent: "Operations Agent",
-    actionLabel: "Approve cleaner",
+    actionLabel: "Approve new cleaner",
     checkOut: "10:00",
     checkIn: "16:00",
     nights: 3,
@@ -63,7 +63,7 @@ const initialProperties = [
     status: "action",
     statusLabel: "1★ review",
     urgency: "medium",
-    detail: "1★ review · Guest: Pierre M. · Response drafted",
+    detail: "1★ review due to construction noise · Guest: Pierre M. · Response drafted",
     agent: "Guest Comms Agent",
     actionLabel: "Approve response",
     checkOut: "—",
@@ -81,12 +81,12 @@ const initialProperties = [
     name: "Studio Promenade",
     address: "45 Promenade des Anglais",
     status: "action",
-    statusLabel: "Payout anomaly",
+    statusLabel: "Payment delay",
     urgency: "medium",
-    detail: "Missing invoice from contractor · Contractor: Sophie R. (4.6★) · Due since Mar 22",
+    detail: "Missing invoice · Cleaner: Sophie R. (4.6★) · Due since Mar 22",
     agent: "Finance Agent",
-    actionLabel: "Contact contractor",
-    actionLabel2: "Exclude cost",
+    actionLabel: "Contact cleaner",
+    actionLabel2: null,
     checkOut: "10:00",
     checkIn: "15:00",
     nights: 2,
@@ -155,7 +155,7 @@ const initialProperties = [
     status: "crisis",
     statusLabel: "Water leak",
     urgency: "high",
-    detail: "Water leak · Plumber: Marc R. (4.9★) · €320 · Above €200 auto-approval limit",
+    detail: "Water leak · Plumber found: Marc R. (4.9★) · Price €320 (above the threshold) · Can start at 09:45",
     agent: "Maintenance Agent",
     actionLabel: "Approve plumber",
     checkOut: "11:00",
@@ -791,7 +791,7 @@ const getAgentColor = (agent) =>
 
 const Badge = ({ label, bg, color, border }) => (
   <span style={{
-    fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4,
+    fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 5,
     backgroundColor: bg, color, border: `1px solid ${border || color}20`,
     whiteSpace: "nowrap",
   }}>
@@ -803,13 +803,14 @@ const AiButton = ({ onClick }) => (
   <button
     onClick={onClick}
     style={{
-      width: 28, height: 28, borderRadius: 6,
-      border: `1px solid ${COLORS.border}`,
-      backgroundColor: COLORS.white,
+      width: 26, height: 26, borderRadius: 6,
+      border: "none",
+      backgroundColor: "transparent",
       cursor: "pointer",
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 14, color: COLORS.accent,
+      fontSize: 15, color: COLORS.textSecondary,
       flexShrink: 0,
+      opacity: 0.5,
     }}
     title="Ask agent about this"
   >
@@ -835,10 +836,10 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
       style={{
         gridColumn: expanded ? "1 / -1" : "span 1",
         backgroundColor: isCritical ? "#fff8f7" : COLORS.white,
-        borderRadius: 8,
+        borderRadius: 12,
         border: `1.5px solid ${borderColor}`,
-        padding: expanded ? "20px 24px" : "14px 16px",
-        display: "flex", flexDirection: "column", gap: expanded ? 10 : 8,
+        padding: expanded ? "20px 24px" : "16px 18px",
+        display: "flex", flexDirection: "column", gap: expanded ? 10 : 10,
         boxSizing: "border-box",
         overflow: "hidden",
         cursor: needsAction ? "pointer" : "default",
@@ -848,11 +849,11 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
         boxShadow: expanded ? "0 8px 24px rgba(0,0,0,0.08)" : "none",
       }}
     >
-      {/* Row 1: Status label · Urgency badge · Expand icon · AI button */}
+      {/* Row 1: Urgency badges + AI button */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <Badge label={property.statusLabel} bg={COLORS.bg} color={COLORS.text} />
         {isCritical && <Badge label="Critical ⚠" bg={COLORS.redLight} color={COLORS.red} />}
         {isImportant && <Badge label="Important" bg={COLORS.yellowLight} color={COLORS.yellow} />}
+        <Badge label={property.statusLabel} bg={COLORS.bg} color={COLORS.text} />
         {property.approvedAction && <Badge label="✓ Approved" bg={COLORS.greenLight} color={COLORS.green} />}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
           {needsAction && (
@@ -878,22 +879,22 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
       <div style={{ fontWeight: 700, fontSize: expanded ? 18 : 16, color: COLORS.text, transition: "font-size 0.3s ease" }}>{property.name}</div>
 
       {/* Row 3: Address · nights · guests · price */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: COLORS.textSecondary, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: COLORS.textSecondary, flexWrap: "wrap" }}>
         <span>{property.address}</span>
-        <span>☾ {property.nights}</span>
-        <span>👥 {property.occupants}</span>
-        <span style={{ fontWeight: 600, color: COLORS.text }}>{property.price}</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 3 }}>☾ {property.nights}</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 3 }}>👥 {property.occupants}</span>
+        <span style={{ fontWeight: 600, color: COLORS.text }}>€{property.price.replace("€", "")}</span>
       </div>
 
       {/* Row 4: Detail */}
-      <div style={{ fontSize: expanded ? 13 : 12, color: COLORS.text, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 12.5, color: COLORS.text, lineHeight: 1.5 }}>
         {property.detail}
       </div>
 
       {/* Row 5: Agent */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: agentColor, flexShrink: 0 }} />
-        <span style={{ fontSize: 11, color: COLORS.textSecondary }}>{property.agent}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: agentColor, flexShrink: 0 }} />
+        <span style={{ fontSize: 11, color: COLORS.textSecondary }}>{property.agent.replace(" Agent", "")}</span>
       </div>
 
       {/* Action buttons — shown here only when collapsed */}
@@ -910,7 +911,7 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
           <button
             onClick={(e) => { e.stopPropagation(); setActionDone(true); onApproveAction?.(property.id); }}
             style={{
-              fontSize: 12, fontWeight: 600, padding: "8px 16px", borderRadius: 6,
+              fontSize: 12, fontWeight: 600, padding: "8px 18px", borderRadius: 6,
               border: "none", backgroundColor: COLORS.text, color: COLORS.white, cursor: "pointer",
             }}
           >
@@ -921,7 +922,7 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
           <button
             onClick={(e) => { e.stopPropagation(); setActionDone(true); onApproveAction?.(property.id); }}
             style={{
-              fontSize: 12, fontWeight: 600, padding: "8px 16px", borderRadius: 6,
+              fontSize: 12, fontWeight: 600, padding: "8px 18px", borderRadius: 6,
               border: `1px solid ${COLORS.border}`, backgroundColor: COLORS.white, color: COLORS.text, cursor: "pointer",
             }}
           >
@@ -931,11 +932,11 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
         {actionDone && (property.actionLabel || property.actionLabel2) && (
           <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.green, padding: "8px 0" }}>✓ Done</span>
         )}
-        {needsAction && !handleDone && property.agent !== "Finance Agent" && (
+        {needsAction && !handleDone && (
           <button
             onClick={(e) => { e.stopPropagation(); onHandleIt(property.id); }}
             style={{
-              fontSize: 12, fontWeight: 500, padding: "8px 16px", borderRadius: 6,
+              fontSize: 12, fontWeight: 500, padding: "8px 18px", borderRadius: 6,
               border: `1px solid ${COLORS.border}`, backgroundColor: "transparent",
               color: COLORS.text, cursor: "pointer",
             }}
@@ -943,7 +944,7 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
             I'll handle it
           </button>
         )}
-        {handleDone && property.agent !== "Finance Agent" && (
+        {handleDone && (
           <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.green, padding: "8px 0" }}>✓ You're handling this</span>
         )}
       </div>
@@ -1010,7 +1011,7 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
             {actionDone && (property.actionLabel || property.actionLabel2) && (
               <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.green, padding: "10px 0" }}>✓ Done</span>
             )}
-            {needsAction && !handleDone && property.agent !== "Finance Agent" && (
+            {needsAction && !handleDone && (
               <button
                 onClick={(e) => { e.stopPropagation(); onHandleIt(property.id); }}
                 style={{
@@ -1022,7 +1023,7 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
                 I'll handle it
               </button>
             )}
-            {handleDone && property.agent !== "Finance Agent" && (
+            {handleDone && (
               <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.green, padding: "10px 0" }}>✓ You're handling this</span>
             )}
           </div>
@@ -1136,9 +1137,9 @@ const FinancesPage = ({ reportOpen, reportPinned, onCloseReport, onPinReport }) 
   return (
     <>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Finances</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Finances</h1>
           <p style={{ fontSize: 13, color: COLORS.textSecondary, margin: "4px 0 0" }}>
             June 2025 · 35 properties · All amounts before tax
           </p>
@@ -1941,9 +1942,9 @@ const AgentsPage = ({ onSelectAgent, panelOpen, onOpenPanel }) => {
   return (
     <>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Agents</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Agents</h1>
           <p style={{ fontSize: 13, color: COLORS.textSecondary, margin: "4px 0 0" }}>
             {agentsData.length} agents configured · {activeCount} active · {pausedCount} paused
           </p>
@@ -2075,17 +2076,19 @@ const StatCard = ({ emoji, label, value, sub, subColor }) => (
   <div
     style={{
       backgroundColor: COLORS.white,
-      borderRadius: 8,
+      borderRadius: 10,
       border: `1px solid ${COLORS.border}`,
-      padding: "12px 16px",
+      padding: "14px 18px",
       flex: 1,
-      minWidth: 120,
+      minWidth: 130,
     }}
   >
-    <div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>{emoji} {label}</div>
+    <div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ fontSize: 14 }}>{emoji}</span> {label}
+    </div>
     <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-      <span style={{ fontSize: 22, fontWeight: 700, color: COLORS.text }}>{value}</span>
-      {sub && <span style={{ fontSize: 11, color: subColor || COLORS.textSecondary }}>{sub}</span>}
+      <span style={{ fontSize: 24, fontWeight: 700, color: COLORS.text }}>{value}</span>
+      {sub && <span style={{ fontSize: 11, color: subColor || COLORS.textSecondary, fontWeight: 500 }}>{sub}</span>}
     </div>
   </div>
 );
@@ -2245,7 +2248,19 @@ export default function Dashboard() {
       ],
     },
   ];
-  const [chatMessages, setChatMessages] = useState([]);
+  const todayWelcomeMessages = [
+    {
+      role: "agent",
+      agent: "Supervisor",
+      agentColor: COLORS.textSecondary,
+      text: "Good morning Marie. You have 4 items needing attention today. Villa Mimosa is the most urgent — a cleaner cancelled and I've found a backup, but I need your approval before confirming. Studio Promenade has a delayed payment I'm still chasing.",
+      followUps: [
+        "Show me the backup cleaner's profile",
+        "Show turnover schedule for Villa Mimosa",
+      ],
+    },
+  ];
+  const [chatMessages, setChatMessages] = useState(todayWelcomeMessages);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportPinned, setReportPinned] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
@@ -2377,22 +2392,36 @@ export default function Dashboard() {
       `}</style>
 
       {/* ─── Left Nav ─── */}
-      <nav style={{ width: 200, backgroundColor: COLORS.white, borderRight: `1px solid ${COLORS.border}`, padding: "20px 0", display: "flex", flexDirection: "column", justifyContent: "space-between", flexShrink: 0 }}>
+      <nav style={{ width: 200, backgroundColor: COLORS.white, borderRight: `1px solid ${COLORS.border}`, padding: "16px 0", display: "flex", flexDirection: "column", justifyContent: "space-between", flexShrink: 0 }}>
         <div>
-          <div style={{ padding: "0 16px 20px", borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontWeight: 700, fontSize: 16, color: COLORS.accent }}>Sunrise</div>
-            <div style={{ fontSize: 12, color: COLORS.textSecondary }}>Team Nice · 35 properties</div>
+          {/* Brand header */}
+          <div style={{ padding: "0 16px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: `linear-gradient(135deg, ${COLORS.accent}, #f07040)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 16, color: COLORS.white, fontWeight: 700,
+              flexShrink: 0,
+            }}>
+              S
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.text }}>Sunrise</div>
+              <div style={{ fontSize: 11, color: COLORS.textSecondary }}>Team Nice</div>
+            </div>
+            <span style={{ fontSize: 10, color: COLORS.textSecondary }}>⌃</span>
           </div>
-          <div style={{ padding: "12px 0" }}>
+
+          {/* Nav items */}
+          <div style={{ padding: "8px 0" }}>
             {[
-              { icon: "◉", label: "Today" },
+              { icon: "☀", label: "Today" },
               { icon: "⌂", label: "Properties" },
-              { icon: "€", label: "Finances" },
-              { icon: "⚙", label: "Agents" },
+              { icon: "○", label: "Finances" },
             ].map((item) => (
               <div
                 key={item.label}
-                onClick={() => { setCurrentPage(item.label); setSelectedAgent(null); setChatMessages(item.label === "Finances" ? financeWelcomeMessages : []); setPanelOpen(true); }}
+                onClick={() => { setCurrentPage(item.label); setSelectedAgent(null); setChatMessages(item.label === "Finances" ? financeWelcomeMessages : item.label === "Today" ? todayWelcomeMessages : []); setPanelOpen(true); }}
                 style={{
                   padding: "8px 16px",
                   fontSize: 13,
@@ -2402,23 +2431,60 @@ export default function Dashboard() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 10,
+                  borderRadius: 0,
                 }}
               >
-                <span style={{ fontSize: 14 }}>{item.icon}</span>
+                <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>{item.icon}</span>
                 {item.label}
               </div>
             ))}
           </div>
         </div>
-        <div style={{ padding: "12px 16px", borderTop: `1px solid ${COLORS.border}` }}>
-          <div style={{ fontSize: 12, fontWeight: 500 }}>Marie Dubois</div>
-          <div style={{ fontSize: 11, color: COLORS.textSecondary }}>Operations Manager</div>
+
+        {/* Bottom section */}
+        <div>
+          {/* Agent settings */}
+          <div
+            onClick={() => { setCurrentPage("Agents"); setSelectedAgent(null); setChatMessages([]); setPanelOpen(true); }}
+            style={{
+              padding: "10px 16px",
+              fontSize: 13,
+              fontWeight: currentPage === "Agents" ? 600 : 400,
+              color: currentPage === "Agents" ? COLORS.text : COLORS.textSecondary,
+              backgroundColor: currentPage === "Agents" ? COLORS.bg : "transparent",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              borderTop: `1px solid ${COLORS.border}`,
+            }}
+          >
+            <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>⚙</span>
+            Agent settings
+          </div>
+
+          {/* User profile */}
+          <div style={{ padding: "12px 16px", borderTop: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%",
+              backgroundColor: COLORS.text, color: COLORS.white,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 12, fontWeight: 600, flexShrink: 0,
+            }}>
+              M
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>Marie Dubous</div>
+              <div style={{ fontSize: 10, color: COLORS.textSecondary }}>Marie@abc.com</div>
+            </div>
+            <span style={{ fontSize: 10, color: COLORS.textSecondary }}>⌃</span>
+          </div>
         </div>
       </nav>
 
       {/* ─── Main Content ─── */}
-      <main style={{ flex: 1, overflow: "auto", padding: "24px 28px" }}>
+      <main style={{ flex: 1, overflow: "auto", padding: "28px 32px" }}>
         {currentPage === "Finances" ? (
           <FinancesPage
             reportOpen={reportOpen}
@@ -2458,73 +2524,45 @@ export default function Dashboard() {
         ) : (
           <>
             {/* Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <div>
-                <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Good morning, Marie</h1>
-                <p style={{ fontSize: 13, color: COLORS.textSecondary, margin: "4px 0 0" }}>
-                  Saturday 5 July · Here's what your agents prepared overnight
-                </p>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 12, color: COLORS.textSecondary }}>09:18 AM</span>
-                {!panelOpen && (
-                  <button
-                    onClick={() => setPanelOpen(true)}
-                    style={{
-                      width: 32, height: 32, borderRadius: 8,
-                      border: `1px solid ${COLORS.border}`,
-                      backgroundColor: COLORS.white,
-                      cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 16, color: COLORS.accent,
-                    }}
-                    title="Open agent chat"
-                  >
-                    ✦
-                  </button>
-                )}
-              </div>
+            <div style={{ marginBottom: 24 }}>
+              <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: COLORS.text }}>Good morning, Marie</h1>
+              <p style={{ fontSize: 13, color: COLORS.textSecondary, margin: "4px 0 0" }}>
+                Here is what your agents prepared overnight
+              </p>
             </div>
 
             {/* Stats Row */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
-              <StatCard emoji="🔄" label="Turnovers today" value={todayStats.turnovers} sub="5 confirmed, 1 at risk" subColor={COLORS.yellow} />
-              <StatCard emoji="→" label="Check-ins" value={todayStats.checkInsToday} sub="Instructions sent" subColor={COLORS.green} />
-              <StatCard emoji="←" label="Check-outs" value={todayStats.checkOutsToday} sub="All on time" subColor={COLORS.green} />
-              <StatCard emoji="⚡" label="Needs attention" value={todayStats.needsAttention} sub={`${todayStats.agentActions} agent actions today`} />
+            <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap" }}>
+              <StatCard emoji="🔥" label="Needs attention" value={todayStats.needsAttention} />
+              <StatCard emoji="🔄" label="Turnovers" value={todayStats.turnovers} sub="1 at risk" subColor={COLORS.yellow} />
+              <StatCard emoji="👋" label="Check-ins" value={todayStats.checkInsToday} />
+              <StatCard emoji="✨" label="Check-outs" value={todayStats.checkOutsToday} />
             </div>
 
             {/* Tabs */}
-            <div style={{ display: "flex", gap: 0, marginBottom: 16, borderBottom: `1px solid ${COLORS.border}` }}>
+            <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
               {[
-                { key: "attention", label: "Needs attention", count: crisisProperties.length + mediumProperties.length, countBg: COLORS.red, countColor: COLORS.white },
-                { key: "ontrack", label: "On track", count: onTrack.length, countBg: COLORS.greenLight, countColor: COLORS.green },
+                { key: "attention", label: "Needs attention", count: crisisProperties.length + mediumProperties.length },
+                { key: "ontrack", label: "On track", count: onTrack.length },
               ].map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setCardTab(tab.key)}
                   style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    padding: "10px 16px", border: "none", backgroundColor: "transparent",
-                    cursor: "pointer", fontSize: 13, fontWeight: cardTab === tab.key ? 600 : 400,
+                    display: "flex", alignItems: "center", gap: 0,
+                    padding: "0 0 6px 0", border: "none", backgroundColor: "transparent",
+                    cursor: "pointer", fontSize: 14, fontWeight: cardTab === tab.key ? 600 : 400,
                     color: cardTab === tab.key ? COLORS.text : COLORS.textSecondary,
                     borderBottom: cardTab === tab.key ? `2px solid ${COLORS.text}` : "2px solid transparent",
-                    marginBottom: -1,
                   }}
                 >
-                  {tab.label}
-                  <span style={{
-                    fontSize: 11, fontWeight: 600, padding: "1px 7px", borderRadius: 10,
-                    backgroundColor: tab.countBg, color: tab.countColor,
-                  }}>
-                    {tab.count}
-                  </span>
+                  {tab.label}({tab.count})
                 </button>
               ))}
             </div>
 
             {/* Cards grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gridAutoRows: "minmax(230px, auto)", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gridAutoRows: "minmax(auto, auto)", gap: 14 }}>
               {(() => {
                 const cards = cardTab === "attention"
                   ? [...crisisProperties, ...mediumProperties]
@@ -2631,21 +2669,21 @@ export default function Dashboard() {
       {panelOpen && (
       <aside style={{ width: 340, backgroundColor: COLORS.white, borderLeft: `1px solid ${COLORS.border}`, display: "flex", flexDirection: "column", flexShrink: 0 }}>
 
-        {/* Tab header with close button */}
-        <div style={{ padding: "12px 16px 0", borderBottom: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
+        {/* Tab header with expand and close buttons */}
+        <div style={{ padding: "10px 14px 0", borderBottom: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", gap: 0 }}>
-              {(selectedAgent
-                ? [{ key: "chat", label: "Chat" }, { key: "activity", label: "Activity" }]
-                : [{ key: "chat", label: "Chat" }, { key: "activity", label: "Activity" }]
-              ).map((tab) => (
+              {[
+                { key: "chat", label: "Chat" },
+                { key: "activity", label: "Agent activity" },
+              ].map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setPanelTab(tab.key)}
                   style={{
                     fontSize: 12,
                     fontWeight: panelTab === tab.key ? 600 : 400,
-                    padding: "6px 14px", border: "none", backgroundColor: "transparent",
+                    padding: "6px 12px", border: "none", backgroundColor: "transparent",
                     color: panelTab === tab.key ? COLORS.text : COLORS.textSecondary,
                     borderBottom: panelTab === tab.key ? `2px solid ${COLORS.text}` : "2px solid transparent",
                     cursor: "pointer", marginBottom: -1,
@@ -2655,18 +2693,31 @@ export default function Dashboard() {
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setPanelOpen(false)}
-              style={{
-                width: 24, height: 24, borderRadius: 4,
-                border: "none", backgroundColor: "transparent",
-                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 14, color: COLORS.textSecondary,
-              }}
-              title="Close panel"
-            >
-              ✕
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <button
+                style={{
+                  width: 24, height: 24, borderRadius: 4,
+                  border: "none", backgroundColor: "transparent",
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 13, color: COLORS.textSecondary,
+                }}
+                title="Expand panel"
+              >
+                ⤢
+              </button>
+              <button
+                onClick={() => setPanelOpen(false)}
+                style={{
+                  width: 24, height: 24, borderRadius: 4,
+                  border: "none", backgroundColor: "transparent",
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 14, color: COLORS.textSecondary,
+                }}
+                title="Close panel"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2911,15 +2962,17 @@ export default function Dashboard() {
                         </div>
                       </div>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 4 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: msg.agentColor || COLORS.accent }} />
-                          <span style={{ fontSize: 10, fontWeight: 600, color: msg.agentColor || COLORS.accent }}>{msg.agent}</span>
-                        </div>
+                      <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                         <div style={{
-                          fontSize: 12, padding: "8px 12px", borderRadius: "4px 12px 12px 12px",
-                          backgroundColor: COLORS.bg, color: COLORS.text, maxWidth: "85%",
-                          lineHeight: 1.5,
+                          width: 22, height: 22, borderRadius: "50%",
+                          background: `linear-gradient(135deg, ${COLORS.accent}22, ${COLORS.purple}22)`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 11, color: COLORS.accent, flexShrink: 0, marginTop: 2,
+                        }}>✦</div>
+                        <div style={{
+                          fontSize: 12, padding: 0, borderRadius: 0,
+                          backgroundColor: "transparent", color: COLORS.text, maxWidth: "90%",
+                          lineHeight: 1.6,
                         }}>
                           {msg.text}
 
@@ -2943,14 +2996,14 @@ export default function Dashboard() {
 
                           {/* Follow-up suggestion chips */}
                           {msg.followUps && (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 10 }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 12 }}>
                               {msg.followUps.map((q) => (
                                 <button
                                   key={q}
                                   onClick={() => {
                                     setChatMessages((prev) => [...prev, { role: "user", text: q }]);
                                     setTimeout(() => {
-                                      let response = { agent: "Finance Agent", agentColor: COLORS.green, text: "I'll look into that." };
+                                      let response = { agent: "Supervisor", agentColor: COLORS.textSecondary, text: "I'll look into that." };
                                       if (q.includes("revenue by property")) {
                                         response = { agent: "Finance Agent", agentColor: COLORS.green, text: "Top 3 by revenue this month:\n1. Maison Cimiez — €7,560 (92% occupancy)\n2. Villa Mimosa — €4,870 (88%)\n3. Villa Paradiso — €3,600 (85%)\n\nBottom 2: Apt. Gambetta (€1,740) and Apt. Port (€2,240) — both under 72% occupancy. I can suggest pricing adjustments if you'd like." };
                                       } else if (q.includes("expense")) {
@@ -2959,14 +3012,19 @@ export default function Dashboard() {
                                         response = { agent: "Finance Agent", agentColor: COLORS.green, text: "2 pending payouts:\n• M. Laurent (Studio Promenade) — €1,820, blocked by missing cleaning invoice from Sophie R. I've sent her a reminder.\n• Mme. Moreau (Villa Roses) — €2,150, waiting on end-of-month reconciliation (due Jul 2).\n\nAll other owners were paid on Jun 28." };
                                       } else if (q.includes("next quarter")) {
                                         response = { agent: "Finance Agent", agentColor: COLORS.green, text: "Q3 forecast (Jul–Sep):\n• Revenue: €104,500 (+22% vs Q2)\n• Net profit: €77,100\n• Peak in August at €37,200\n\nThis assumes 91% avg occupancy during peak season. I've already adjusted pricing on 12 properties to match demand curves. Want me to run a scenario with different assumptions?" };
+                                      } else if (q.includes("backup cleaner")) {
+                                        response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "Backup cleaner profile:\n\nLea M. — 4.8★ (127 cleans)\n• Distance: 25 min from Villa Mimosa\n• Availability: Can start at 10:30\n• Specialties: Villas, large properties\n• Languages: French, English\n• Reliability: 98% on-time rate\n• Last clean: Yesterday (Apt. Gambetta — 5★ rated)\n\nShe's one of our top-rated backup cleaners in the Nice area." };
+                                      } else if (q.includes("turnover schedule")) {
+                                        response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "Turnover schedule for Villa Mimosa today:\n\n10:00 — Guest checkout (4 guests, 3-night stay)\n10:30 — Lea arrives for cleaning (backup)\n~13:00 — Estimated cleaning complete\n14:00 — Quality inspection\n16:00 — New guest check-in (4 occupants, 3 nights)\n\nBuffer time: 1.5hrs between clean finish and check-in. Check-in instructions ready to send once turnover confirmed." };
                                       }
                                       setChatMessages((prev) => [...prev, { role: "agent", ...response }]);
                                     }, 800);
                                   }}
                                   style={{
-                                    fontSize: 10, padding: "5px 9px", borderRadius: 12,
+                                    fontSize: 11, padding: "8px 12px", borderRadius: 8,
                                     border: `1px solid ${COLORS.border}`, backgroundColor: COLORS.white,
                                     color: COLORS.text, cursor: "pointer", lineHeight: 1.3,
+                                    textAlign: "left", width: "100%",
                                   }}
                                 >
                                   {q}
@@ -3032,9 +3090,10 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Chat input */}
-            <div style={{ padding: "8px 12px", borderTop: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
-              <div style={{ display: "flex", gap: 8 }}>
+            {/* Chat input area */}
+            <div style={{ borderTop: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
+              {/* Input field */}
+              <div style={{ padding: "10px 14px 6px" }}>
                 <input
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
@@ -3060,33 +3119,33 @@ export default function Dashboard() {
                       }, 800);
                     }
                   }}
-                  placeholder="Ask your agents..."
+                  placeholder="Ask Supervisor..."
                   style={{
-                    flex: 1, fontSize: 12, padding: "8px 12px", borderRadius: 6,
+                    width: "100%", fontSize: 12, padding: "10px 12px", borderRadius: 8,
                     border: `1px solid ${COLORS.border}`, outline: "none",
+                    backgroundColor: COLORS.bg, boxSizing: "border-box",
                   }}
                 />
-                <button
-                  onClick={() => {
-                    if (chatInput.trim()) {
-                      const userMsg = chatInput.trim();
-                      setChatInput("");
-                      setChatMessages((prev) => [...prev, { role: "user", text: userMsg }]);
-                      setTimeout(() => {
-                        setChatMessages((prev) => [...prev, {
-                          role: "agent", agent: "Supervisor", agentColor: COLORS.textSecondary,
-                          text: "I'll check on that for you.",
-                        }]);
-                      }, 800);
-                    }
-                  }}
-                  style={{
-                    fontSize: 12, fontWeight: 600, padding: "8px 14px", borderRadius: 6,
-                    border: "none", backgroundColor: COLORS.text, color: COLORS.white, cursor: "pointer",
-                  }}
-                >
-                  Send
-                </button>
+              </div>
+              {/* Bottom bar: + agent selector + mic */}
+              <div style={{ padding: "4px 14px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <button style={{
+                    width: 22, height: 22, borderRadius: 6, border: `1px solid ${COLORS.border}`,
+                    backgroundColor: COLORS.white, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 13, color: COLORS.textSecondary, padding: 0,
+                  }}>+</button>
+                  <span style={{ fontSize: 11, color: COLORS.textSecondary, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
+                    Supervisor <span style={{ fontSize: 8 }}>▾</span>
+                  </span>
+                </div>
+                <button style={{
+                  width: 24, height: 24, borderRadius: "50%", border: "none",
+                  backgroundColor: "transparent", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 14, color: COLORS.textSecondary, padding: 0,
+                }}>🎙</button>
               </div>
             </div>
           </>
