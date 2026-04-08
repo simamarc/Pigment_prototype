@@ -83,17 +83,18 @@ const initialProperties = [
     status: "action",
     statusLabel: "Payout anomaly",
     urgency: "medium",
-    detail: "Missing invoice · Cleaner: Sophie R. (4.6★) · Due since Mar 22",
+    detail: "Missing invoice from contractor · Contractor: Sophie R. (4.6★) · Due since Mar 22",
     agent: "Finance Agent",
-    actionLabel: "Contact cleaner",
+    actionLabel: "Contact contractor",
+    actionLabel2: "Exclude cost",
     checkOut: "10:00",
     checkIn: "15:00",
     nights: 2,
     occupants: 2,
     price: "€244",
     timelineProgress: 0.85,
-    whatHappened: "March owner payout for M. Laurent (€772) is ready, but cleaning invoice from 22 Mar (€180, cleaner: Sophie R.) is missing.",
-    agentDid: "Flagged the missing invoice. Sophie normally submits within 48hrs — her last invoice was on time (15 Mar).",
+    whatHappened: "March owner payout for M. Laurent (€772) is ready, but invoice from contractor Sophie R. (€180, due 22 Mar) is missing.",
+    agentDid: "Flagged the missing invoice. Sophie normally submits within 48hrs — her last invoice was on time (15 Mar). You can contact the contractor directly or exclude this cost from the payout.",
     listing: { bedrooms: 0, bathrooms: 1, type: "Studio", owner: "M. Laurent", nextBooking: "Jul 7 (2 nights)", rating: 4.6, reviews: 19 },
   },
   {
@@ -210,10 +211,10 @@ const agentMessages = [
     type: "alert",
     urgency: "medium",
     statusLabel: "Payout blocked",
-    title: "Missing invoice blocks payout",
-    body: "March payout for Studio Promenade is ready (€1,140 to owner) but cleaning invoice from 22 Mar is missing. Owner M. Laurent's payout is on hold.",
+    title: "Missing invoice from contractor",
+    body: "March payout for Studio Promenade is ready (€1,140 to owner) but invoice from contractor Sophie R. (22 Mar) is missing. Owner M. Laurent's payout is on hold.",
     agentDid: "Flagged missing invoice. Sophie normally submits within 48hrs.",
-    action: "Request invoice from cleaner?",
+    action: "Contact contractor or Exclude cost",
     property: "Studio Promenade",
     address: "45 Promenade des Anglais",
     resolved: false,
@@ -263,14 +264,14 @@ const agentMessages = [
   {
     id: 7,
     time: "08:00",
-    agent: "Operations",
-    agentColor: COLORS.accent,
+    agent: "Supervisor",
+    agentColor: COLORS.textSecondary,
     type: "auto",
     urgency: "none",
     statusLabel: "Schedule ready",
     title: "Today's schedule generated",
     body: "6 turnovers today. 5 cleaners confirmed. 1 pending (Villa Mimosa — see escalation above). All properties have sufficient time gaps.",
-    agentDid: "Cross-referenced bookings, cleaner availability, and travel times. Confirmed 5/6.",
+    agentDid: "Coordinated Operations and Guest Comms agents. Cross-referenced bookings, cleaner availability, and travel times. Confirmed 5/6.",
     property: "All properties",
     resolved: true,
   },
@@ -370,10 +371,10 @@ const financeActivityMessages = [
     type: "alert",
     urgency: "medium",
     statusLabel: "Payout blocked",
-    title: "Missing invoice blocks payout",
-    body: "March payout for Studio Promenade (€1,140 to M. Laurent) on hold — cleaning invoice from 22 Mar (€180, Sophie R.) is missing.",
+    title: "Missing invoice from contractor",
+    body: "March payout for Studio Promenade (€1,140 to M. Laurent) on hold — invoice from contractor Sophie R. (€180, due 22 Mar) is missing.",
     agentDid: "Flagged missing invoice. Sophie normally submits within 48hrs. Sent reminder.",
-    action: "Request invoice from cleaner?",
+    action: "Contact contractor or Exclude cost",
     property: "Studio Promenade",
     address: "45 Promenade des Anglais",
     resolved: false,
@@ -396,7 +397,7 @@ const financeActivityMessages = [
   },
   {
     id: 103,
-    time: "08:45",
+    time: "09:10",
     agent: "Finance",
     agentColor: COLORS.green,
     type: "auto",
@@ -404,78 +405,64 @@ const financeActivityMessages = [
     statusLabel: "Report ready",
     title: "June monthly report generated",
     body: "Revenue: €31,240 (+12% vs May). Net profit: €22,510 (+16%). Commission earned: €6,248. Growth driven by higher villa occupancy.",
-    agentDid: "Compiled revenue, expenses, and profit data across all 11 properties.",
+    agentDid: "Compiled revenue, expenses, and profit data across all 35 properties.",
     property: "All properties",
     resolved: true,
   },
   {
     id: 104,
+    time: "08:50",
+    agent: "Finance",
+    agentColor: COLORS.green,
+    type: "auto",
+    urgency: "none",
+    statusLabel: "Payout sent",
+    title: "1 payout processed — Studio Promenade",
+    body: "Owner payout for M. Laurent (€1,140) has been processed. Cleaning invoice (€180) deducted, 20% commission applied. Bank transfer initiated.",
+    agentDid: "Deducted verified expenses, applied commission rate, and queued transfer to M. Laurent's account.",
+    property: "Studio Promenade",
+    resolved: true,
+  },
+  {
+    id: 105,
     time: "08:30",
     agent: "Finance",
     agentColor: COLORS.green,
     type: "auto",
     urgency: "none",
-    statusLabel: "Payouts sent",
-    title: "4 owner payouts processed",
-    body: "Processed payouts: Mme. Blanc (€2,120), Mme. Moreau (€980), M. Dupont (€520), Mme. Vidal (€350). Total: €3,970.",
-    agentDid: "Verified all invoices, calculated commissions, and initiated bank transfers.",
-    property: "4 properties",
+    statusLabel: "Invoice received",
+    title: "Invoice received — Sophie R.",
+    body: "Sophie R. submitted the missing cleaning invoice (€180) for Studio Promenade. Amount matches expected rate. Invoice verified and matched to booking.",
+    agentDid: "Received and validated invoice. Matched to booking record and contractor agreement. Payout for M. Laurent is now unblocked.",
+    property: "Studio Promenade",
     resolved: true,
   },
   {
-    id: 105,
+    id: 106,
+    time: "08:15",
+    agent: "Finance",
+    agentColor: COLORS.green,
+    type: "auto",
+    urgency: "none",
+    statusLabel: "Contractor contacted",
+    title: "Contacted contractor for missing invoice",
+    body: "Sophie R. has a missing invoice (€180) for Studio Promenade cleaning on 22 Mar. Sent automated reminder requesting submission within 48hrs.",
+    agentDid: "Identified missing invoice blocking M. Laurent's payout. Sent reminder to Sophie R. via email and SMS.",
+    property: "Studio Promenade",
+    resolved: true,
+  },
+  {
+    id: 107,
     time: "08:00",
     agent: "Finance",
     agentColor: COLORS.green,
     type: "auto",
     urgency: "none",
-    statusLabel: "Forecast updated",
-    title: "Q3 revenue forecast updated",
-    body: "Based on current bookings and seasonal trends, Q3 forecast is €98,500 (+8% vs Q2). July looks strong at €35,200 with 89% occupancy projected.",
-    agentDid: "Updated forecast model with latest booking data and market rates.",
-    property: "Portfolio",
-    resolved: true,
-  },
-  {
-    id: 106,
-    time: "07:30",
-    agent: "Finance",
-    agentColor: COLORS.green,
-    type: "auto",
-    urgency: "none",
-    statusLabel: "Rates adjusted",
-    title: "Dynamic pricing update — 3 properties",
-    body: "Adjusted nightly rates: Villa Paradiso +12% (high demand week), Apt. Gambetta −8% (low occupancy), Studio Vieux Nice +5% (event nearby).",
-    agentDid: "Analyzed 14 competitor listings, local event calendar, and 30-day booking pace.",
-    property: "3 properties",
-    resolved: true,
-  },
-  {
-    id: 107,
-    time: "07:00",
-    agent: "Finance",
-    agentColor: COLORS.green,
-    type: "auto",
-    urgency: "none",
-    statusLabel: "Invoices matched",
-    title: "Expense reconciliation completed",
-    body: "Matched 8 incoming invoices to bookings: 5 cleaning, 2 maintenance, 1 supply order. All amounts within expected range. No anomalies.",
-    agentDid: "Cross-referenced invoices with booking records and vendor contracts.",
-    property: "All properties",
-    resolved: true,
-  },
-  {
-    id: 108,
-    time: "06:30",
-    agent: "Finance",
-    agentColor: COLORS.green,
-    type: "auto",
-    urgency: "none",
-    statusLabel: "Tax updated",
-    title: "Tourist tax calculated for June",
-    body: "Calculated tourist tax liability: €742 across 11 properties (based on 186 guest-nights at €2–€5/night depending on property class).",
-    agentDid: "Applied commune tax rates per property class, generated declaration-ready summary.",
-    property: "All properties",
+    statusLabel: "Payouts sent",
+    title: "35 owner payments processed",
+    body: "Processed monthly owner payouts for 35 properties. Total disbursed: €48,720. All invoices verified, commissions deducted, bank transfers initiated.",
+    agentDid: "Verified 102 invoices across 35 properties, applied commission rates, and queued bank transfers.",
+    property: "35 properties",
     resolved: true,
   },
 ];
@@ -665,7 +652,7 @@ const agentsData = [
       { name: "Issue refunds", mode: "approval", description: "Guest refunds must be reviewed and approved by the operator.", escalations: [], thresholds: {} },
     ],
     recentActions: [
-      { time: "08:30", action: "Flagged missing invoice — Studio Promenade payout blocked", status: "escalated" },
+      { time: "08:30", action: "Flagged missing invoice from contractor — Studio Promenade payout blocked", status: "escalated" },
       { time: "08:00", action: "Generated June monthly report", status: "auto" },
       { time: "Yesterday", action: "Detected competitor price drop for Apt. Gambetta", status: "escalated" },
       { time: "Yesterday", action: "Processed 8 owner payouts (€18,220)", status: "auto" },
@@ -933,10 +920,21 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
             {property.actionLabel}
           </button>
         )}
-        {actionDone && property.actionLabel && (
+        {property.actionLabel2 && !actionDone && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setActionDone(true); onApproveAction?.(property.id); }}
+            style={{
+              fontSize: 12, fontWeight: 600, padding: "8px 16px", borderRadius: 6,
+              border: `1px solid ${COLORS.border}`, backgroundColor: COLORS.white, color: COLORS.text, cursor: "pointer",
+            }}
+          >
+            {property.actionLabel2}
+          </button>
+        )}
+        {actionDone && (property.actionLabel || property.actionLabel2) && (
           <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.green, padding: "8px 0" }}>✓ Done</span>
         )}
-        {needsAction && !handleDone && (
+        {needsAction && !handleDone && property.agent !== "Finance Agent" && (
           <button
             onClick={(e) => { e.stopPropagation(); onHandleIt(property.id); }}
             style={{
@@ -948,7 +946,7 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
             I'll handle it
           </button>
         )}
-        {handleDone && (
+        {handleDone && property.agent !== "Finance Agent" && (
           <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.green, padding: "8px 0" }}>✓ You're handling this</span>
         )}
       </div>
@@ -1001,10 +999,21 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
                 {property.actionLabel}
               </button>
             )}
-            {actionDone && property.actionLabel && (
+            {property.actionLabel2 && !actionDone && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setActionDone(true); onApproveAction?.(property.id); }}
+                style={{
+                  fontSize: 13, fontWeight: 600, padding: "10px 20px", borderRadius: 6,
+                  border: `1px solid ${COLORS.border}`, backgroundColor: COLORS.white, color: COLORS.text, cursor: "pointer",
+                }}
+              >
+                {property.actionLabel2}
+              </button>
+            )}
+            {actionDone && (property.actionLabel || property.actionLabel2) && (
               <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.green, padding: "10px 0" }}>✓ Done</span>
             )}
-            {needsAction && !handleDone && (
+            {needsAction && !handleDone && property.agent !== "Finance Agent" && (
               <button
                 onClick={(e) => { e.stopPropagation(); onHandleIt(property.id); }}
                 style={{
@@ -1016,7 +1025,7 @@ const PropertyCard = ({ property, onAskAgent, expanded, onToggleExpand, handleDo
                 I'll handle it
               </button>
             )}
-            {handleDone && (
+            {handleDone && property.agent !== "Finance Agent" && (
               <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.green, padding: "10px 0" }}>✓ You're handling this</span>
             )}
           </div>
@@ -2279,32 +2288,65 @@ export default function Dashboard() {
       "Villa Mimosa": {
         agent: "Operations Agent",
         agentColor: COLORS.accent,
-        text: `Villa Mimosa — Turnover at risk.\n\nCleaner Nadia cancelled at 09:12 (sick). Backup option: Léa (4.8★, 25min away, can start 10:30, estimated finish 14:30). Check-in at 16:00 gives 1.5hr buffer.\n\nCurrent guest checks out at 10:00 — on schedule. Incoming guest (4 people, 3-night stay) hasn't received check-in instructions yet — I'm holding those until turnover is confirmed.\n\nWhat would you like to do?`,
+        text: `Villa Mimosa — Turnover at risk.\n\nCleaner Nadia cancelled at 09:12 (sick). Backup option: Léa (4.8★, 25min away, can start 10:30, estimated finish 14:30). Check-in at 16:00 gives 1.5hr buffer.\n\nCurrent guest checks out at 10:00 — on schedule. Incoming guest (4 people, 3-night stay) hasn't received check-in instructions yet — I'm holding those until turnover is confirmed.`,
+        actions: [
+          { label: "Book Léa as replacement", primary: true, response: "Done — Léa is booked for 10:30. She's confirmed and has the door code and cleaning checklist. I'll send check-in instructions to the incoming guest once she starts. ETA finish: 14:30, giving a 1.5hr buffer before the 16:00 check-in." },
+          { label: "Find other cleaners", response: "Searching for other available cleaners in the area...\n\nFound 2 more options:\n• Marc D. — available at 11:00, 35min away, 4.6★\n• Julie P. — available at 12:00, 20min away, 4.9★ (but later start cuts the buffer tight)\n\nLéa is still the best option time-wise. Want me to book one of these instead?" },
+          { label: "Send check-in instructions now", response: "Check-in instructions sent to the incoming guest now — includes lockbox code, parking info, and WiFi details.\n\nNote: I've added a line saying exact entry time will be confirmed by 14:00, in case the turnover runs late. I'll update them once cleaning is confirmed complete." },
+          { label: "I'll handle it myself", response: "Understood — I've flagged this as manually handled. I won't take any action on Villa Mimosa's turnover. Let me know if you need anything else." },
+        ],
       },
       "Apt. Garibaldi": {
         agent: "Maintenance Agent",
         agentColor: COLORS.purple,
-        text: `Apt. Garibaldi — AC failure reported.\n\nGuest messaged at 08:47: "The air conditioning stopped working overnight, it was very hot." This is a mid-stay guest (day 3 of 5, 2 occupants).\n\nI've contacted 2 contractors:\n• Dupont HVAC — available today at 14:00, estimate €120\n• Côte Clim — earliest tomorrow morning, estimate €95\n\nThe guest hasn't complained further but the forecast is 32°C today. I'd recommend the faster option. Want me to book Dupont?`,
+        text: `Apt. Garibaldi — AC failure reported.\n\nGuest messaged at 08:47: "The air conditioning stopped working overnight, it was very hot." This is a mid-stay guest (day 3 of 5, 2 occupants).\n\nI've contacted 2 contractors:\n• Dupont HVAC — available today at 14:00, estimate €120\n• Côte Clim — earliest tomorrow morning, estimate €95\n\nThe guest hasn't complained further but the forecast is 32°C today. I'd recommend the faster option.`,
+        actions: [
+          { label: "Book Dupont HVAC (today, €120)", primary: true, response: "Dupont HVAC is booked for 14:00 today. I've messaged the guest to let them know a technician is coming this afternoon and apologized for the inconvenience.\n\nI'll follow up after the visit to confirm it's fixed." },
+          { label: "Book Côte Clim (tomorrow, €95)", response: "Côte Clim booked for tomorrow morning. I've messaged the guest explaining a technician will come first thing tomorrow and apologized for the wait.\n\nGiven the 32°C forecast, want me to offer the guest a portable fan or a discount as a goodwill gesture?" },
+          { label: "Message guest first", response: "I'll send a message to the guest acknowledging the issue and asking if they'd prefer a morning or afternoon repair visit. I'll let you know their response so we can book accordingly." },
+          { label: "Offer partial refund", response: "What amount would you like to offer? A typical goodwill gesture for AC issues would be €30–50 (one night's discount). I can message the guest with the offer and an apology." },
+        ],
       },
       "Studio Promenade": {
         agent: "Finance Agent",
         agentColor: COLORS.green,
-        text: `Studio Promenade — Payout blocked.\n\nMarch owner payout for M. Laurent is calculated at €772, but I'm holding it because a cleaning invoice from 22 Mar (€180, cleaner: Sophie R.) is missing.\n\nThis is unusual — Sophie normally submits within 48hrs. Her last invoice was submitted on time on 15 Mar.\n\nOptions: I can request the invoice from Sophie, you can approve the payout without it, or I can remove the expense and recalculate. What do you prefer?`,
+        text: `Studio Promenade — Payout blocked.\n\nMarch owner payout for M. Laurent is calculated at €772, but I'm holding it because a cleaning invoice from 22 Mar (€180, cleaner: Sophie R.) is missing.\n\nThis is unusual — Sophie normally submits within 48hrs. Her last invoice was submitted on time on 15 Mar.`,
+        actions: [
+          { label: "Request invoice from Sophie", primary: true, response: "Message sent to Sophie R. requesting the missing invoice for the Mar 22 clean at Studio Promenade. I've marked it as urgent.\n\nI'll notify you when she responds. If no reply by tomorrow, I'll send a follow-up." },
+          { label: "Approve payout without invoice", response: "Payout of €772 released to M. Laurent. I've noted the missing €180 invoice — if Sophie submits it later, it'll be applied to next month's reconciliation.\n\nOwner will receive funds within 2 business days." },
+          { label: "Remove expense & recalculate", response: "Recalculated: payout is now €952 (€772 + €180 removed expense). This means M. Laurent gets more this month, but if Sophie's invoice comes in later, you'll need to deduct it from next month.\n\nWant me to release at the new amount?" },
+          { label: "Contact owner about delay", response: "I'll send M. Laurent a message explaining the payout is delayed due to a pending invoice and that we expect to resolve it within 48 hours. Want me to draft that message for your review first?" },
+        ],
       },
       "Maison Cimiez": {
         agent: "Operations Agent",
         agentColor: COLORS.accent,
-        text: `Maison Cimiez — All on track.\n\nCheckout today at 10:00 (6 guests, 7-night stay). Cleaner Sophie confirmed for 10:30. This is a large property (4 bedrooms) — estimated 2.5hr clean.\n\nNew guest arrives at 16:00. Check-in instructions sent at 08:15. Lockbox code updated.\n\nNo issues flagged. Anything you'd like to know?`,
+        text: `Maison Cimiez — All on track.\n\nCheckout today at 10:00 (6 guests, 7-night stay). Cleaner Sophie confirmed for 10:30. This is a large property (4 bedrooms) — estimated 2.5hr clean.\n\nNew guest arrives at 16:00. Check-in instructions sent at 08:15. Lockbox code updated.\n\nNo issues flagged.`,
+        actions: [
+          { label: "View cleaning checklist", response: "Maison Cimiez cleaning checklist (4-bedroom):\n\n• Strip & remake all 4 beds (king linens x2, queen x1, twin x1)\n• Deep clean 3 bathrooms + guest WC\n• Kitchen: empty fridge, run dishwasher, wipe all surfaces\n• Vacuum & mop all rooms\n• Restock: towels, toiletries, coffee pods, welcome basket\n• Terrace: sweep, wipe furniture, check pool area\n\nSophie has completed this property 12 times — she knows the drill." },
+          { label: "View incoming guest details", response: "Incoming guest: Jean-Marc & family\n• 4 guests (2 adults, 2 children)\n• 5-night stay (Apr 6–11)\n• Booking: €3,780 via Airbnb\n• Special requests: baby cot (already set up), late checkout on Apr 11 if possible\n• Guest rating: 4.9★ (23 reviews)\n• Check-in: 16:00, lockbox code sent" },
+          { label: "Send checkout reminder to guest", response: "Checkout reminder sent to the current guest — friendly message reminding them of 10:00 checkout, asking them to leave keys in the lockbox, and thanking them for their stay.\n\nI've also included a link to leave a review." },
+        ],
       },
       "Apt. Libération": {
         agent: "Guest Comms Agent",
         agentColor: COLORS.blue,
-        text: `Apt. Libération — Running smoothly.\n\nDay 3 of 5 for current guest (3 occupants). No issues reported. I've handled 2 messages from this guest automatically:\n• WiFi password request (yesterday 19:22)\n• Restaurant recommendation (yesterday 20:15)\n\nCheckout is Apr 4 at 10:00. Next booking starts same day at 16:00 — turnover already scheduled with cleaner Marc.\n\nAnything else you need?`,
+        text: `Apt. Libération — Running smoothly.\n\nDay 3 of 5 for current guest (3 occupants). No issues reported. I've handled 2 messages from this guest automatically:\n• WiFi password request (yesterday 19:22)\n• Restaurant recommendation (yesterday 20:15)\n\nCheckout is Apr 4 at 10:00. Next booking starts same day at 16:00 — turnover already scheduled with cleaner Marc.`,
+        actions: [
+          { label: "View guest messages", response: "Messages handled for Apt. Libération:\n\n19:22 — Guest: \"What's the WiFi password?\"\n→ Auto-replied: \"The WiFi network is 'Liberation-Guest', password: Welcome2024! It's also on the card by the router.\"\n\n20:15 — Guest: \"Any good restaurant nearby for dinner?\"\n→ Auto-replied with 3 recommendations: Le Safari (French, 5min walk), Chez Pipo (socca & pizza, 8min), La Rossettisserie (rotisserie, 3min). All rated 4.5+★." },
+          { label: "Send mid-stay check-in", response: "Mid-stay message sent: \"Hi! Hope you're enjoying your stay at Apt. Libération. Just checking in — is everything going well? Let us know if you need anything at all. Enjoy the rest of your time in Nice! 😊\"\n\nI'll let you know if they respond." },
+          { label: "View turnover schedule", response: "Turnover schedule for Apr 4:\n• Checkout: 10:00\n• Cleaner Marc arrives: 10:30\n• Estimated clean time: 1.5hrs (1-bedroom)\n• Ready by: 12:00\n• Next check-in: 16:00 (4hr buffer)\n\nMarc is confirmed. Linens and supplies are stocked." },
+        ],
       },
       "Villa Roses": {
         agent: "Guest Comms Agent",
         agentColor: COLORS.blue,
-        text: `Villa Roses — Check-in today.\n\nNew guest arriving at 15:00 (2 occupants, 4-night stay, €380). Check-in instructions sent at 08:15 with lockbox code and welcome info.\n\nProperty was cleaned yesterday (last guest checked out Apr 4). Cleaner rated condition as excellent. No maintenance issues.\n\nThe guest messaged back confirming arrival time. Anything you'd like me to adjust?`,
+        text: `Villa Roses — Check-in today.\n\nNew guest arriving at 15:00 (2 occupants, 4-night stay, €380). Check-in instructions sent at 08:15 with lockbox code and welcome info.\n\nProperty was cleaned yesterday (last guest checked out Apr 4). Cleaner rated condition as excellent. No maintenance issues.\n\nThe guest messaged back confirming arrival time.`,
+        actions: [
+          { label: "View check-in instructions sent", response: "Check-in instructions sent at 08:15:\n\n\"Welcome to Villa Roses! 🌹\n\nAddress: 12 Rue des Roses, Nice\nLockbox location: Left side of front door, code: 4872\nParking: Free spot in the driveway\nWiFi: VillaRoses-Guest / Sunshine2024\n\nCheck-in: anytime after 15:00\nCheckout: 10:00 on Apr 10\n\nWelcome basket with wine, fruit, and local treats is on the kitchen counter. Enjoy your stay!\"\n\nGuest confirmed receipt at 08:32." },
+          { label: "Adjust check-in time", response: "What time would you like to change check-in to? The property is already clean and ready, so we can accommodate an earlier arrival if needed. I'll update the guest once you confirm." },
+          { label: "Add welcome note", response: "I can add a personalized welcome note. What would you like it to say? Some options:\n\n• General warm welcome\n• Local tips and recommendations\n• Special occasion message (birthday, anniversary)\n\nOr tell me what to write and I'll send it to the guest." },
+        ],
       },
     };
 
@@ -2935,6 +2977,56 @@ export default function Dashboard() {
                               ))}
                             </div>
                           )}
+
+                          {/* Action buttons for property context messages */}
+                          {msg.actions && !msg.actionsUsed && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 12 }}>
+                              {msg.actions.map((action) => (
+                                <button
+                                  key={action.label}
+                                  onClick={() => {
+                                    setChatMessages((prev) => prev.map((m, idx) => idx === i ? { ...m, actionsUsed: true } : m));
+                                    setChatMessages((prev) => [...prev, { role: "user", text: action.label }]);
+                                    setTimeout(() => {
+                                      setChatMessages((prev) => [...prev, {
+                                        role: "agent",
+                                        agent: msg.agent,
+                                        agentColor: msg.agentColor,
+                                        text: action.response,
+                                      }]);
+                                    }, 800);
+                                  }}
+                                  style={{
+                                    display: "flex", alignItems: "center", gap: 8,
+                                    padding: "8px 12px", borderRadius: 8,
+                                    border: action.primary ? "none" : `1px solid ${COLORS.border}`,
+                                    backgroundColor: action.primary ? COLORS.text : COLORS.white,
+                                    color: action.primary ? COLORS.white : COLORS.text,
+                                    cursor: "pointer", fontSize: 11, fontWeight: 600,
+                                    textAlign: "left", lineHeight: 1.3,
+                                    transition: "all 0.15s ease",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (action.primary) {
+                                      e.currentTarget.style.backgroundColor = "#333";
+                                    } else {
+                                      e.currentTarget.style.backgroundColor = COLORS.bg;
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (action.primary) {
+                                      e.currentTarget.style.backgroundColor = COLORS.text;
+                                    } else {
+                                      e.currentTarget.style.backgroundColor = COLORS.white;
+                                    }
+                                  }}
+                                >
+                                  {action.label}
+                                  <span style={{ marginLeft: "auto", color: action.primary ? "rgba(255,255,255,0.5)" : COLORS.textSecondary, fontSize: 12 }}>→</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -3063,6 +3155,7 @@ export default function Dashboard() {
                           {/* Collapsed: compact row */}
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: m.agentColor, flexShrink: 0 }} />
+                            <span style={{ fontSize: 11, color: COLORS.textSecondary, flexShrink: 0 }}>{m.agent}</span>
                             <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: isExpanded ? "normal" : "nowrap" }}>
                               {m.property}
                             </span>
@@ -3151,7 +3244,8 @@ export default function Dashboard() {
                         >
                           {/* Collapsed: single compact line */}
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ fontSize: 11, color: COLORS.green }}>✓</span>
+                            <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: m.agentColor, flexShrink: 0 }} />
+                            <span style={{ fontSize: 11, color: COLORS.textSecondary, flexShrink: 0 }}>{m.agent}</span>
                             <span style={{ fontSize: 11, color: COLORS.text, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: isExpanded ? "normal" : "nowrap" }}>
                               {m.title}
                             </span>
