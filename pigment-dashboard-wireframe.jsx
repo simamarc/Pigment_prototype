@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 // ─── Wireframe: Operator Dashboard "Today" View ───
 // Sunrise Conciergerie · Marie's morning view
@@ -1084,35 +1084,150 @@ const expenseBreakdown = [
 ];
 
 // ─── Mini Bar Chart (SVG) ───
-const MiniBarChart = ({ data, dataKey, color, forecastColor, height = 120 }) => {
-  const maxVal = Math.max(...data.map((d) => d[dataKey]));
-  const barWidth = 28;
-  const gap = 8;
-  const totalWidth = data.length * (barWidth + gap) - gap;
+const RevenueLineChart = ({ data, height = 140 }) => {
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) setContainerWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const padding = { top: 16, right: 16, bottom: 28, left: 44 };
+  const chartWidth = containerWidth || 560;
+  const chartH = height;
+  const w = chartWidth - padding.left - padding.right;
+  const h = chartH - padding.top - padding.bottom;
+
+  const allVals = data.map((d) => d.revenue);
+  const maxVal = Math.ceil(Math.max(...allVals) / 10000) * 10000;
+  const minVal = 0;
+
+  const getX = (i) => padding.left + (i / (data.length - 1)) * w;
+  const getY = (val) => padding.top + h - ((val - minVal) / (maxVal - minVal)) * h;
+
+  const lastActualIdx = data.findIndex((d) => d.forecast) - 1;
+  const actualData = lastActualIdx >= 0 ? data.slice(0, lastActualIdx + 1) : data;
+  const forecastData = lastActualIdx >= 0 ? data.slice(lastActualIdx) : [];
+
+  const buildPath = (points) => {
+    if (points.length < 2) return "";
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[Math.max(i - 1, 0)];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[Math.min(i + 2, points.length - 1)];
+      const tension = 0.35;
+      const cp1x = p1.x + (p2.x - p0.x) * tension;
+      const cp1y = p1.y + (p2.y - p0.y) * tension;
+      const cp2x = p2.x - (p3.x - p1.x) * tension;
+      const cp2y = p2.y - (p3.y - p1.y) * tension;
+      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+    }
+    return d;
+  };
+
+  const allPoints = data.map((d, i) => ({ x: getX(i), y: getY(d.revenue), ...d }));
+  const actualPoints = actualData.map((d, i) => ({ x: getX(i), y: getY(d.revenue) }));
+  const forecastPoints = forecastData.map((d, i) => ({ x: getX(lastActualIdx + i), y: getY(d.revenue) }));
+
+  const actualPath = buildPath(actualPoints);
+  const forecastPath = buildPath(forecastPoints);
+
+  const yTicks = [0, maxVal * 0.25, maxVal * 0.5, maxVal * 0.75, maxVal];
+
+  const handleMouseMove = (e) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const mouseX = e.clientX - rect.left;
+    let closest = 0;
+    let closestDist = Infinity;
+    allPoints.forEach((p, i) => {
+      const dist = Math.abs(p.x - mouseX);
+      if (dist < closestDist) { closestDist = dist; closest = i; }
+    });
+    setHoveredIdx(closest);
+  };
+
+  const hovered = hoveredIdx !== null ? allPoints[hoveredIdx] : null;
 
   return (
-    <svg width={totalWidth} height={height + 20} style={{ display: "block" }}>
-      {data.map((d, i) => {
-        const barH = (d[dataKey] / maxVal) * height;
-        const x = i * (barWidth + gap);
-        const isForecast = d.forecast;
-        return (
-          <g key={d.month}>
-            <rect
-              x={x} y={height - barH} width={barWidth} height={barH}
-              rx={3}
-              fill={isForecast ? (forecastColor || color + "55") : color}
-              stroke={isForecast ? color : "none"}
-              strokeWidth={isForecast ? 1.5 : 0}
-              strokeDasharray={isForecast ? "4 2" : "none"}
-            />
-            <text x={x + barWidth / 2} y={height + 14} textAnchor="middle" fontSize={9} fill={COLORS.textSecondary}>
+    <div ref={containerRef} style={{ width: "100%", position: "relative" }} onMouseMove={handleMouseMove} onMouseLeave={() => setHoveredIdx(null)}>
+      {containerWidth > 0 && (
+        <svg width={chartWidth} height={chartH} style={{ display: "block" }}>
+          {/* Grid lines & y-axis labels */}
+          {yTicks.map((val) => (
+            <g key={val}>
+              <line x1={padding.left} y1={getY(val)} x2={chartWidth - padding.right} y2={getY(val)} stroke={COLORS.border} strokeWidth={1} />
+              <text x={padding.left - 8} y={getY(val) + 3} textAnchor="end" fontSize={10} fill={COLORS.textSecondary}>
+                {val >= 1000 ? `${Math.round(val / 1000)}k` : val}
+              </text>
+            </g>
+          ))}
+
+          {/* X-axis labels */}
+          {data.map((d, i) => (
+            <text key={d.month} x={getX(i)} y={chartH - 6} textAnchor="middle" fontSize={10} fill={hoveredIdx === i ? COLORS.text : COLORS.textSecondary} fontWeight={hoveredIdx === i ? 600 : 400}>
               {d.month}
             </text>
-          </g>
-        );
-      })}
-    </svg>
+          ))}
+
+          {/* Actual line (solid) */}
+          <path d={actualPath} fill="none" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+
+          {/* Forecast line (dashed) */}
+          {forecastPath && (
+            <path d={forecastPath} fill="none" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="8 5" />
+          )}
+
+          {/* Dots */}
+          {actualPoints.map((p, i) => (
+            <circle key={i} cx={p.x} cy={p.y} r={hoveredIdx === i ? 5 : 3} fill={hoveredIdx === i ? COLORS.accent : COLORS.white} stroke={COLORS.accent} strokeWidth={2} style={{ transition: "r 0.15s, fill 0.15s" }} />
+          ))}
+          {forecastPoints.map((p, i) => {
+            const globalIdx = lastActualIdx + i;
+            return (
+              <circle key={`f${i}`} cx={p.x} cy={p.y} r={hoveredIdx === globalIdx ? 5 : 3} fill={hoveredIdx === globalIdx ? COLORS.accent : COLORS.white} stroke={COLORS.accent} strokeWidth={2} style={{ transition: "r 0.15s, fill 0.15s" }} />
+            );
+          })}
+
+          {/* Vertical crosshair on hover */}
+          {hovered && (
+            <line x1={hovered.x} y1={padding.top} x2={hovered.x} y2={padding.top + h} stroke={COLORS.accent} strokeWidth={1} strokeDasharray="4 3" opacity={0.4} />
+          )}
+        </svg>
+      )}
+
+      {/* Tooltip */}
+      {hovered && (
+        <div style={{
+          position: "absolute",
+          left: Math.min(hovered.x - 60, chartWidth - 140),
+          top: Math.max(hovered.y - 64, 0),
+          backgroundColor: COLORS.text,
+          color: COLORS.white,
+          borderRadius: 8,
+          padding: "8px 12px",
+          fontSize: 12,
+          lineHeight: 1.5,
+          pointerEvents: "none",
+          zIndex: 10,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          whiteSpace: "nowrap",
+        }}>
+          <div style={{ fontWeight: 600, marginBottom: 2 }}>{hovered.month}{hovered.forecast ? " (forecast)" : ""}</div>
+          <div>Revenue: <span style={{ color: COLORS.accent }}>€{hovered.revenue?.toLocaleString()}</span></div>
+          <div>Profit: <span style={{ color: "#6ee7b7" }}>€{hovered.profit?.toLocaleString()}</span></div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -1205,24 +1320,9 @@ const FinancesPage = ({ reportOpen, reportPinned, onCloseReport, onPinReport, on
               <AiButton onClick={() => onAskAgent?.({ context: "revenue", title: "Revenue & Profit Trend" })} />
             </div>
             <div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 16 }}>
-              Monthly totals · Dashed bars = forecast
+              Monthly totals · Dashed line = forecast
             </div>
-            <div style={{ display: "flex", gap: 40, alignItems: "flex-end" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: COLORS.accent }} />
-                  <span style={{ fontSize: 11, color: COLORS.textSecondary }}>Revenue</span>
-                </div>
-                <MiniBarChart data={monthlyTrend} dataKey="revenue" color={COLORS.accent} height={100} />
-              </div>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: COLORS.green }} />
-                  <span style={{ fontSize: 11, color: COLORS.textSecondary }}>Net profit</span>
-                </div>
-                <MiniBarChart data={monthlyTrend} dataKey="profit" color={COLORS.green} height={100} />
-              </div>
-            </div>
+            <RevenueLineChart data={monthlyTrend} height={180} />
           </div>
 
           {/* Expense breakdown */}
