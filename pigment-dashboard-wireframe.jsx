@@ -803,14 +803,13 @@ const AiButton = ({ onClick }) => (
   <button
     onClick={onClick}
     style={{
-      width: 26, height: 26, borderRadius: 6,
+      width: 28, height: 28, borderRadius: 6,
       border: "none",
       backgroundColor: "transparent",
       cursor: "pointer",
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 15, color: COLORS.textSecondary,
+      fontSize: 20, color: COLORS.accent,
       flexShrink: 0,
-      opacity: 0.5,
     }}
     title="Ask agent about this"
   >
@@ -1125,7 +1124,7 @@ const HorizontalBar = ({ pct, color }) => (
 );
 
 // ─── Finances Page ───
-const FinancesPage = ({ reportOpen, reportPinned, onCloseReport, onPinReport }) => {
+const FinancesPage = ({ reportOpen, reportPinned, onCloseReport, onPinReport, onAskAgent }) => {
   const [finTab, setFinTab] = useState("overview");
   const [simNights, setSimNights] = useState(25);
   const [simRate, setSimRate] = useState(120);
@@ -1201,7 +1200,10 @@ const FinancesPage = ({ reportOpen, reportPinned, onCloseReport, onPinReport }) 
             backgroundColor: COLORS.white, borderRadius: 8, border: `1px solid ${COLORS.border}`,
             padding: 20, gridColumn: "span 2",
           }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Revenue & Profit Trend</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>Revenue & Profit Trend</div>
+              <AiButton onClick={() => onAskAgent?.({ context: "revenue", title: "Revenue & Profit Trend" })} />
+            </div>
             <div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 16 }}>
               Monthly totals · Dashed bars = forecast
             </div>
@@ -1226,57 +1228,64 @@ const FinancesPage = ({ reportOpen, reportPinned, onCloseReport, onPinReport }) 
           {/* Expense breakdown */}
           <div style={{
             backgroundColor: COLORS.white, borderRadius: 8, border: `1px solid ${COLORS.border}`,
-            padding: 20,
+            padding: 20, display: "flex", flexDirection: "column",
           }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Expense Breakdown</div>
-            <div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 16 }}>
-              This month · {financeStats.totalExpenses} total
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>Expense breakdown</div>
+              <AiButton onClick={() => onAskAgent?.({ context: "expenses", title: "Expense Breakdown" })} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
               {expenseBreakdown.map((e) => (
                 <div key={e.category} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 12, width: 90, color: COLORS.text }}>{e.category}</span>
-                  <HorizontalBar pct={e.pct} color={e.color} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, width: 60, textAlign: "right" }}>{e.amount}</span>
-                  <span style={{ fontSize: 11, color: COLORS.textSecondary, width: 32, textAlign: "right" }}>{e.pct}%</span>
+                  <span style={{ fontSize: 12, fontWeight: 500, width: 90, color: COLORS.text, textAlign: "right" }}>{e.category}</span>
+                  <span style={{ fontSize: 11, color: COLORS.textSecondary, width: 28 }}>{e.pct}%</span>
+                  <HorizontalBar pct={e.pct} color={COLORS.accent} />
                 </div>
               ))}
+            </div>
+            {/* AI insight callout */}
+            <div style={{
+              marginTop: 20, padding: "12px 14px", backgroundColor: COLORS.agentBg,
+              borderRadius: 8, border: `1px solid ${COLORS.border}`,
+              display: "flex", alignItems: "flex-start", gap: 10,
+            }}>
+              <span style={{ fontSize: 15, color: COLORS.textSecondary, opacity: 0.5, marginTop: 1 }}>✦</span>
+              <div style={{ fontSize: 12, color: COLORS.text, lineHeight: 1.6 }}>
+                Based on 6 months of data, cleaning costs <span style={{ fontWeight: 600 }}>12% above seasonal average</span> — potential saving identified
+              </div>
             </div>
           </div>
 
-          {/* Agent savings suggestions */}
+          {/* AI suggestions */}
           <div style={{
-            backgroundColor: COLORS.white, borderRadius: 8, border: `1px solid ${COLORS.accent}22`,
-            padding: 20, position: "relative",
+            backgroundColor: COLORS.white, borderRadius: 8, border: `1px solid ${COLORS.border}`,
+            padding: 20, display: "flex", flexDirection: "column",
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <div style={{ width: 24, height: 24, borderRadius: "50%", background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.green})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 12, color: COLORS.white }}>&#9889;</span>
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>Finance Agent</div>
-              <div style={{ fontSize: 10, color: COLORS.textSecondary, marginLeft: "auto" }}>Just now</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>AI suggestions</div>
+              <AiButton onClick={() => onAskAgent?.({ context: "suggestions", title: "AI Suggestions" })} />
             </div>
-            <div style={{ fontSize: 12.5, color: COLORS.text, lineHeight: 1.6, marginBottom: 16 }}>
-              I found <span style={{ fontWeight: 600 }}>3 ways to cut expenses</span> across your portfolio this month. Estimated savings: <span style={{ fontWeight: 700, color: COLORS.green }}>€680/mo</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
               {[
-                { num: 1, title: "Switch cleaning provider for 3 properties", desc: <>Sophie R. charges €65/clean for Apt. Masséna, Apt. Gambetta & Apt. Port. CleanPro quoted €45/clean — saves <span style={{ fontWeight: 600, color: COLORS.green }}>€360/mo</span></> },
-                { num: 2, title: "Renegotiate linen service contract", desc: <>Current rate is €12/set across 10 properties. Bulk discount available at €9/set — saves <span style={{ fontWeight: 600, color: COLORS.green }}>€180/mo</span></> },
-                { num: 3, title: "Cancel unused insurance on Apt. Libération", desc: <>Duplicate appliance cover active since Jan — original policy already includes it. Saves <span style={{ fontWeight: 600, color: COLORS.green }}>€140/mo</span></> },
-              ].map((item) => (
-                <div key={item.num} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 12px", backgroundColor: COLORS.greenLight + "44", borderRadius: 6, position: "relative" }}>
-                  <div style={{ minWidth: 18, height: 18, borderRadius: "50%", backgroundColor: COLORS.green, color: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, marginTop: 1 }}>{item.num}</div>
-                  <button style={{ position: "absolute", top: 6, right: 6, padding: "2px 6px", fontSize: 11, fontWeight: 500, backgroundColor: "transparent", color: COLORS.textSecondary, border: "none", borderRadius: 4, cursor: "pointer", lineHeight: 1 }}>✕</button>
-                  <div style={{ flex: 1, paddingRight: 20 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{item.title}</div>
-                    <div style={{ fontSize: 11, color: COLORS.textSecondary, lineHeight: 1.5 }}>{item.desc}</div>
-                    <div style={{ marginTop: 8 }}>
-                      <button style={{ padding: "5px 14px", fontSize: 11, fontWeight: 600, backgroundColor: COLORS.accent, color: COLORS.white, border: "none", borderRadius: 5, cursor: "pointer" }}>Approve</button>
-                    </div>
+                { confidence: "High", confidenceColor: COLORS.green, confidenceBg: COLORS.greenLight, title: "Switch cleaning provider for 3 properties", desc: <>Sophie R. charges €65/clean for 3 properties. ClPro quoted €45/clean — saves <span style={{ fontWeight: 700 }}>€360</span>/month</> },
+                { confidence: "Medium", confidenceColor: COLORS.yellow, confidenceBg: COLORS.yellowLight, title: "Cancel unused insurance on Apt. Libération", desc: <>Duplicate appliance cover active — original policy already includes it. Saves <span style={{ fontWeight: 700 }}>€140</span>/month</> },
+              ].map((item, i) => (
+                <div key={i} style={{ position: "relative" }}>
+                  <button style={{ position: "absolute", top: 0, right: 0, padding: "2px 6px", fontSize: 13, fontWeight: 400, backgroundColor: "transparent", color: COLORS.textSecondary, border: "none", cursor: "pointer", lineHeight: 1 }}>✕</button>
+                  <div style={{ display: "inline-block", padding: "3px 10px", fontSize: 11, fontWeight: 600, color: item.confidenceColor, backgroundColor: item.confidenceBg, borderRadius: 4, border: `1px solid ${item.confidenceColor}33`, marginBottom: 10 }}>
+                    {item.confidence} confidence
                   </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: COLORS.textSecondary, lineHeight: 1.6, marginBottom: 12 }}>{item.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.accent, cursor: "pointer" }}>Approve</div>
+                  {i === 0 && <div style={{ borderBottom: `1px solid ${COLORS.border}`, marginTop: 20 }} />}
                 </div>
               ))}
+            </div>
+            {/* Finance agent attribution */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16, paddingTop: 12, borderTop: `1px solid ${COLORS.border}` }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: COLORS.blue }} />
+              <span style={{ fontSize: 12, color: COLORS.textSecondary }}>Finance agent</span>
             </div>
           </div>
         </div>
@@ -2490,6 +2499,44 @@ export default function Dashboard() {
               reportPinned={reportPinned}
               onCloseReport={() => { setReportOpen(false); setReportPinned(false); }}
               onPinReport={() => { setReportPinned(true); setReportOpen(false); }}
+              onAskAgent={({ context, title }) => {
+                const financeContextMessages = {
+                  revenue: {
+                    agent: "Finance Agent",
+                    agentColor: COLORS.green,
+                    text: `Revenue & Profit Trend — June 2025\n\nTotal revenue: €24,680 (+8% vs May). Net profit: €12,450 (+12% vs May). Top performer: Maison Cimiez (€4,280). Lowest: Apt. Port (€2,240).\n\nProfit margin improved from 46% to 50% — driven by lower maintenance costs and higher occupancy across 3 properties.\n\nWhat would you like to know more about?`,
+                    actions: [
+                      { label: "Break down by property", primary: true, response: "Revenue breakdown by property:\n\n1. Maison Cimiez — €4,280 (17%)\n2. Villa Mimosa — €3,850 (16%)\n3. Loft Vauban — €3,420 (14%)\n4. Studio Promenade — €2,940 (12%)\n5. Apt. Masséna — €2,680 (11%)\n6. Apt. Gambetta — €2,540 (10%)\n7. Villa Roses — €2,490 (10%)\n8. Apt. Port — €2,240 (9%)\n\nMaison Cimiez and Villa Mimosa together account for 33% of total revenue." },
+                      { label: "Compare to last quarter", response: "Q2 vs Q1 comparison:\n\n• Revenue: €68,200 vs €52,100 (+31%)\n• Profit: €34,800 vs €24,500 (+42%)\n• Occupancy: 81% vs 68% (+13pts)\n\nSeasonal uplift is the main driver — Nice enters peak tourist season from May. However, 3 properties outperformed seasonal expectations by 15%+, suggesting pricing optimization is working." },
+                      { label: "Forecast next month", response: "July forecast based on current bookings + historical patterns:\n\n• Expected revenue: €28,400 (+15% vs June)\n• Expected profit: €14,800\n• Occupancy forecast: 89%\n\nAll properties have 70%+ bookings confirmed for July. Peak pricing is active. I'd recommend reviewing Apt. Port's rate — it's 18% below market for comparable listings." },
+                    ],
+                  },
+                  expenses: {
+                    agent: "Finance Agent",
+                    agentColor: COLORS.green,
+                    text: `Expense Breakdown — June 2025\n\nTotal expenses: €8,730. Cleaning is your largest category at 37% (€3,240), followed by maintenance at 25% (€2,180).\n\nI've noticed cleaning costs are 12% above the seasonal average based on 6 months of data. This is mainly driven by 3 properties using a higher-rate provider.\n\nWant me to dig into any specific category?`,
+                    actions: [
+                      { label: "Analyse cleaning costs", primary: true, response: "Cleaning cost analysis:\n\n• Sophie R. handles 3 properties at €65/clean — that's 20% above market rate (€52 avg)\n• CleanPro quoted €45/clean for the same properties\n• Express turnovers (between deep cleans) could reduce frequency by 30%\n\nIf you switch to bi-weekly deep cleans + express turnovers: estimated saving €580/mo.\nIf you also switch provider for those 3 properties: additional €360/mo.\n\nTotal potential cleaning savings: €940/mo (29% reduction)." },
+                      { label: "Show month-over-month trend", response: "Expense trend (last 6 months):\n\n• Jan: €7,200\n• Feb: €7,450\n• Mar: €7,800\n• Apr: €8,100\n• May: €8,480\n• Jun: €8,730\n\nExpenses have risen 21% since January. Main drivers:\n• Cleaning: +18% (more turnovers as occupancy increased)\n• Maintenance: +35% (AC season + 2 emergency repairs)\n• Platform fees: +12% (proportional to revenue growth)\n\nMaintenance spike is seasonal and expected to normalize in August." },
+                      { label: "Compare to industry average", response: "Your expense ratio vs industry benchmarks:\n\n• Your total: 35% of revenue\n• Industry average (Nice, short-term rental): 32%\n• Top performers: 28%\n\nYou're 3pts above average, mainly due to cleaning costs. Maintenance and platform fees are in line. Reducing cleaning costs by the suggested €580/mo would bring you to 33% — closer to average." },
+                    ],
+                  },
+                  suggestions: {
+                    agent: "Finance Agent",
+                    agentColor: COLORS.green,
+                    text: `AI Expense Suggestions\n\nI've identified 2 actionable opportunities to reduce your operating costs:\n\n1. **Switch cleaning provider** (High confidence) — Sophie R. charges €65/clean for Apt. Masséna, Gambetta & Port. CleanPro quoted €45/clean with same service level and 4.8★ rating. Saves €360/mo.\n\n2. **Cancel duplicate insurance** (Medium confidence) — Apt. Libération has overlapping appliance cover. The main policy already includes it. Saves €140/mo.\n\nTotal potential: €500/mo. Want details on either suggestion?`,
+                    actions: [
+                      { label: "Tell me more about CleanPro", primary: true, response: "CleanPro details:\n\n• Rating: 4.8★ (127 reviews)\n• Operating in Nice since 2019\n• Already services 40+ short-term rental properties\n• Standard rate: €45/clean (1-2 bed), €65/clean (3+ bed)\n• Turnaround time: 2hrs for standard, 3hrs for large\n• Insurance: fully covered up to €10,000\n\nThey offer a trial clean at no commitment. Want me to schedule one for Apt. Masséna as a test?" },
+                      { label: "Show the insurance overlap", response: "Insurance overlap on Apt. Libération:\n\n• Main policy (AXA Habitation): covers appliances, plumbing, electrical — active since 2022, €45/mo\n• Additional policy (Darty Protect): appliance-only cover added Jan 2025 — €12/mo\n\nThe Darty policy is fully redundant — AXA already covers everything it does, with higher limits. Cancelling saves €140/mo (€12 × 12 months, partial refund available for remaining term).\n\nWant me to draft a cancellation request?" },
+                      { label: "Find more savings", response: "Looking deeper across your portfolio...\n\nAdditional opportunities found:\n\n3. **Renegotiate linen service** — Current rate €12/set. Bulk discount at €9/set available from the same provider for 10+ properties. Saves €180/mo.\n\n4. **Optimise platform listing mix** — Apt. Gambetta gets 80% of bookings from Airbnb at 15% commission. Adding Booking.com (12%) and direct booking could reduce blended rate to 11%. Saves ~€120/mo.\n\nTotal with all suggestions: €800/mo potential savings." },
+                    ],
+                  },
+                };
+                const ctx = financeContextMessages[context] || { agent: "Finance Agent", agentColor: COLORS.green, text: `${title}\n\nHow can I help you with this?` };
+                setChatMessages([{ role: "agent", ...ctx }]);
+                setPanelTab("chat");
+                setPanelOpen(true);
+              }}
             />
           </div>
         ) : currentPage === "Agents" ? (
