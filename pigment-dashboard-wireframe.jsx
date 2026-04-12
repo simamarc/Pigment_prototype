@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Calendar, Home, DollarSign, Settings } from "react-feather";
 
 // ─── Wireframe: Operator Dashboard "Today" View ───
 // Sunrise Conciergerie · Marie's morning view
@@ -2522,9 +2523,9 @@ export default function Dashboard() {
           {/* Nav items */}
           <div style={{ padding: "8px 0" }}>
             {[
-              { icon: "☀", label: "Today" },
-              { icon: "⌂", label: "Properties" },
-              { icon: "○", label: "Finances" },
+              { icon: <Calendar size={15} />, label: "Today" },
+              { icon: <Home size={15} />, label: "Properties" },
+              { icon: <DollarSign size={15} />, label: "Finances" },
             ].map((item) => (
               <div
                 key={item.label}
@@ -2542,7 +2543,7 @@ export default function Dashboard() {
                   borderRadius: 0,
                 }}
               >
-                <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>{item.icon}</span>
+                <span style={{ width: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>{item.icon}</span>
                 {item.label}
               </div>
             ))}
@@ -2567,7 +2568,7 @@ export default function Dashboard() {
               borderTop: `1px solid ${COLORS.border}`,
             }}
           >
-            <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>⚙</span>
+            <span style={{ width: 18, display: "flex", alignItems: "center", justifyContent: "center" }}><Settings size={15} /></span>
             Agent settings
           </div>
 
