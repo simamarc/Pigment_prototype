@@ -2381,6 +2381,12 @@ export default function Dashboard() {
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", backgroundColor: COLORS.bg, color: COLORS.text }}>
       <style>{`
+        html, body, #root {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          overflow: hidden;
+        }
         @keyframes slideInUp {
           from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
@@ -2484,25 +2490,29 @@ export default function Dashboard() {
       </nav>
 
       {/* ─── Main Content ─── */}
-      <main style={{ flex: 1, overflow: "auto", padding: "28px 32px" }}>
+      <main style={{ flex: 1, overflow: "hidden", padding: "28px 32px", display: "flex", flexDirection: "column" }}>
         {currentPage === "Finances" ? (
-          <FinancesPage
-            reportOpen={reportOpen}
-            reportPinned={reportPinned}
-            onCloseReport={() => { setReportOpen(false); setReportPinned(false); }}
-            onPinReport={() => { setReportPinned(true); setReportOpen(false); }}
-          />
+          <div style={{ flex: 1, overflowY: "auto", marginRight: -32, paddingRight: 32 }}>
+            <FinancesPage
+              reportOpen={reportOpen}
+              reportPinned={reportPinned}
+              onCloseReport={() => { setReportOpen(false); setReportPinned(false); }}
+              onPinReport={() => { setReportPinned(true); setReportOpen(false); }}
+            />
+          </div>
         ) : currentPage === "Agents" ? (
-          selectedAgent ? (
-            <AgentDetailPage agent={selectedAgent} onBack={() => { setSelectedAgent(null); setChatMessages([]); }} panelOpen={panelOpen} onOpenPanel={() => setPanelOpen(true)} />
-          ) : (
-            <AgentsPage panelOpen={panelOpen} onOpenPanel={() => setPanelOpen(true)} onSelectAgent={(agent) => {
-              setSelectedAgent(agent);
-              setPanelOpen(true);
-              setPanelTab("chat");
-              setChatMessages([]);
-            }} />
-          )
+          <div style={{ flex: 1, overflowY: "auto", marginRight: -32, paddingRight: 32 }}>
+            {selectedAgent ? (
+              <AgentDetailPage agent={selectedAgent} onBack={() => { setSelectedAgent(null); setChatMessages([]); }} panelOpen={panelOpen} onOpenPanel={() => setPanelOpen(true)} />
+            ) : (
+              <AgentsPage panelOpen={panelOpen} onOpenPanel={() => setPanelOpen(true)} onSelectAgent={(agent) => {
+                setSelectedAgent(agent);
+                setPanelOpen(true);
+                setPanelTab("chat");
+                setChatMessages([]);
+              }} />
+            )}
+          </div>
         ) : currentPage === "Properties" ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", textAlign: "center", padding: 40 }}>
             <div style={{ width: 64, height: 64, borderRadius: 16, backgroundColor: COLORS.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16, border: `1px solid ${COLORS.border}` }}>
@@ -2524,7 +2534,7 @@ export default function Dashboard() {
         ) : (
           <>
             {/* Header */}
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 24, flexShrink: 0 }}>
               <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: COLORS.text }}>Good morning, Marie</h1>
               <p style={{ fontSize: 13, color: COLORS.textSecondary, margin: "4px 0 0" }}>
                 Here is what your agents prepared overnight
@@ -2532,7 +2542,7 @@ export default function Dashboard() {
             </div>
 
             {/* Stats Row */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap", flexShrink: 0 }}>
               <StatCard emoji="🔥" label="Needs attention" value={todayStats.needsAttention} />
               <StatCard emoji="🔄" label="Turnovers" value={todayStats.turnovers} sub="1 at risk" subColor={COLORS.yellow} />
               <StatCard emoji="👋" label="Check-ins" value={todayStats.checkInsToday} />
@@ -2540,7 +2550,7 @@ export default function Dashboard() {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+            <div style={{ display: "flex", gap: 16, marginBottom: 20, flexShrink: 0 }}>
               {[
                 { key: "attention", label: "Needs attention", count: crisisProperties.length + mediumProperties.length },
                 { key: "ontrack", label: "On track", count: onTrack.length },
@@ -2562,32 +2572,52 @@ export default function Dashboard() {
             </div>
 
             {/* Cards grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gridAutoRows: "minmax(auto, auto)", gap: 14 }}>
-              {(() => {
-                const cards = cardTab === "attention"
-                  ? [...crisisProperties, ...mediumProperties]
-                  : onTrack;
-                const sorted = expandedCardId
-                  ? [
-                      ...cards.filter((p) => p.id === expandedCardId),
-                      ...cards.filter((p) => p.id !== expandedCardId),
-                    ]
-                  : cards;
-                return sorted.map((p) => (
-                  <PropertyCard
-                    key={p.id}
-                    property={p}
-                    onAskAgent={handleAskAgent}
-                    expanded={expandedCardId === p.id}
-                    onToggleExpand={(id) => setExpandedCardId(expandedCardId === id ? null : id)}
-                    handleDone={handlingIds.has(p.id)}
-                    onHandleIt={handleItClick}
-                    fadingOut={fadingOutIds.has(p.id)}
-                    onApproveAction={handlePropertyApprove}
-                  />
-                ));
-              })()}
-            </div>
+            <div style={{ flex: 1, overflowY: "auto", marginRight: -32, paddingRight: 32 }}>
+            {(() => {
+              const cards = cardTab === "attention"
+                ? [...crisisProperties, ...mediumProperties]
+                : onTrack;
+              if (cardTab === "attention" && cards.length === 0) {
+                return (
+                  <div style={{
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                    padding: "64px 24px", textAlign: "center",
+                    backgroundColor: COLORS.white, borderRadius: 12, border: `1.5px solid ${COLORS.greenLight}`,
+                  }}>
+                    <div style={{ fontSize: 40, marginBottom: 16 }}>☀️</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.text, marginBottom: 6 }}>
+                      Everything's handled for today
+                    </div>
+                    <div style={{ fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, maxWidth: 360 }}>
+                      All issues have been resolved — your agents are taking care of the rest. Enjoy the rest of your day.
+                    </div>
+                  </div>
+                );
+              }
+              const sorted = expandedCardId
+                ? [
+                    ...cards.filter((p) => p.id === expandedCardId),
+                    ...cards.filter((p) => p.id !== expandedCardId),
+                  ]
+                : cards;
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gridAutoRows: "minmax(auto, auto)", gap: 14 }}>
+                  {sorted.map((p) => (
+                    <PropertyCard
+                      key={p.id}
+                      property={p}
+                      onAskAgent={handleAskAgent}
+                      expanded={expandedCardId === p.id}
+                      onToggleExpand={(id) => setExpandedCardId(expandedCardId === id ? null : id)}
+                      handleDone={handlingIds.has(p.id)}
+                      onHandleIt={handleItClick}
+                      fadingOut={fadingOutIds.has(p.id)}
+                      onApproveAction={handlePropertyApprove}
+                    />
+                  ))}
+                </div>
+              );
+            })()}
 
             {/* ─── You're on it section ─── */}
             {handlingIds.size > 0 && (
@@ -2648,6 +2678,7 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
+            </div>
           </>
         )}
       </main>
@@ -2900,9 +2931,9 @@ export default function Dashboard() {
           /* ══ DEFAULT CHAT TAB ══ */
           <>
             {/* Chat messages */}
-            <div style={{ flex: 1, overflowY: "auto", padding: "12px 0" }}>
+            <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
               {chatMessages.length === 0 ? (
-                <div style={{ padding: "40px 20px", textAlign: "center" }}>
+                <div style={{ padding: "30px 20px", textAlign: "center" }}>
                   <div style={{ fontSize: 16, marginBottom: 8 }}>💬</div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>
                     Chat with your agents
@@ -3091,62 +3122,39 @@ export default function Dashboard() {
             </div>
 
             {/* Chat input area */}
-            <div style={{ borderTop: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
-              {/* Input field */}
-              <div style={{ padding: "10px 14px 6px" }}>
-                <input
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && chatInput.trim()) {
-                      const userMsg = chatInput.trim();
-                      setChatInput("");
-                      setChatMessages((prev) => [...prev, { role: "user", text: userMsg }]);
-                      setTimeout(() => {
-                        let response = { agent: "Supervisor", agentColor: COLORS.textSecondary, text: "I'll look into that for you." };
-                        if (userMsg.toLowerCase().includes("villa mimosa") || userMsg.toLowerCase().includes("léa")) {
-                          response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "Léa is confirmed and en route. ETA 10:25. She has the door code and cleaning checklist. I'll notify you when she starts." };
-                        } else if (userMsg.toLowerCase().includes("checkout") || userMsg.toLowerCase().includes("check-out")) {
-                          response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "6 check-outs today, all on schedule. Maison Cimiez (10:00), Villa Mimosa (10:00), Studio Promenade (10:00), Apt. Port (11:00), Studio Vieux Nice (11:00), Apt. Garibaldi (—, mid-stay)." };
-                        } else if (userMsg.toLowerCase().includes("revenue") || userMsg.toLowerCase().includes("money") || userMsg.toLowerCase().includes("payout")) {
-                          response = { agent: "Finance Agent", agentColor: COLORS.green, text: "March revenue is €24,475, up 8% vs February. 34 owner payouts are ready (€18,220 total). 1 payout on hold for Studio Promenade — missing cleaning invoice." };
-                        } else if (userMsg.toLowerCase().includes("guest") || userMsg.toLowerCase().includes("message")) {
-                          response = { agent: "Guest Comms Agent", agentColor: COLORS.blue, text: "7 guest messages handled overnight. No pending replies. 4 check-in instructions sent this morning. No complaints or escalations." };
-                        } else if (userMsg.toLowerCase().includes("reschedule") || userMsg.toLowerCase().includes("move")) {
-                          response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "I can reschedule that. Which property and what's the new time? I'll check cleaner availability and confirm." };
-                        }
-                        setChatMessages((prev) => [...prev, { role: "agent", ...response }]);
-                      }, 800);
-                    }
-                  }}
-                  placeholder="Ask Supervisor..."
-                  style={{
-                    width: "100%", fontSize: 12, padding: "10px 12px", borderRadius: 8,
-                    border: `1px solid ${COLORS.border}`, outline: "none",
-                    backgroundColor: COLORS.bg, boxSizing: "border-box",
-                  }}
-                />
-              </div>
-              {/* Bottom bar: + agent selector + mic */}
-              <div style={{ padding: "4px 14px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <button style={{
-                    width: 22, height: 22, borderRadius: 6, border: `1px solid ${COLORS.border}`,
-                    backgroundColor: COLORS.white, cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 13, color: COLORS.textSecondary, padding: 0,
-                  }}>+</button>
-                  <span style={{ fontSize: 11, color: COLORS.textSecondary, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
-                    Supervisor <span style={{ fontSize: 8 }}>▾</span>
-                  </span>
-                </div>
-                <button style={{
-                  width: 24, height: 24, borderRadius: "50%", border: "none",
-                  backgroundColor: "transparent", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 14, color: COLORS.textSecondary, padding: 0,
-                }}>🎙</button>
-              </div>
+            <div style={{ padding: "10px 14px", borderTop: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
+              <input
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && chatInput.trim()) {
+                    const userMsg = chatInput.trim();
+                    setChatInput("");
+                    setChatMessages((prev) => [...prev, { role: "user", text: userMsg }]);
+                    setTimeout(() => {
+                      let response = { agent: "Supervisor", agentColor: COLORS.textSecondary, text: "I'll look into that for you." };
+                      if (userMsg.toLowerCase().includes("villa mimosa") || userMsg.toLowerCase().includes("léa")) {
+                        response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "Léa is confirmed and en route. ETA 10:25. She has the door code and cleaning checklist. I'll notify you when she starts." };
+                      } else if (userMsg.toLowerCase().includes("checkout") || userMsg.toLowerCase().includes("check-out")) {
+                        response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "6 check-outs today, all on schedule. Maison Cimiez (10:00), Villa Mimosa (10:00), Studio Promenade (10:00), Apt. Port (11:00), Studio Vieux Nice (11:00), Apt. Garibaldi (—, mid-stay)." };
+                      } else if (userMsg.toLowerCase().includes("revenue") || userMsg.toLowerCase().includes("money") || userMsg.toLowerCase().includes("payout")) {
+                        response = { agent: "Finance Agent", agentColor: COLORS.green, text: "March revenue is €24,475, up 8% vs February. 34 owner payouts are ready (€18,220 total). 1 payout on hold for Studio Promenade — missing cleaning invoice." };
+                      } else if (userMsg.toLowerCase().includes("guest") || userMsg.toLowerCase().includes("message")) {
+                        response = { agent: "Guest Comms Agent", agentColor: COLORS.blue, text: "7 guest messages handled overnight. No pending replies. 4 check-in instructions sent this morning. No complaints or escalations." };
+                      } else if (userMsg.toLowerCase().includes("reschedule") || userMsg.toLowerCase().includes("move")) {
+                        response = { agent: "Operations Agent", agentColor: COLORS.accent, text: "I can reschedule that. Which property and what's the new time? I'll check cleaner availability and confirm." };
+                      }
+                      setChatMessages((prev) => [...prev, { role: "agent", ...response }]);
+                    }, 800);
+                  }
+                }}
+                placeholder="Ask Supervisor..."
+                style={{
+                  width: "100%", fontSize: 12, padding: "10px 12px", borderRadius: 8,
+                  border: `1px solid ${COLORS.border}`, outline: "none",
+                  backgroundColor: COLORS.bg, boxSizing: "border-box",
+                }}
+              />
             </div>
           </>
         ) : (
