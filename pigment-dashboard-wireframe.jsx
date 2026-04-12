@@ -1260,31 +1260,23 @@ const FinancesPage = ({ reportOpen, reportPinned, onCloseReport, onPinReport }) 
               I found <span style={{ fontWeight: 600 }}>3 ways to cut expenses</span> across your portfolio this month. Estimated savings: <span style={{ fontWeight: 700, color: COLORS.green }}>€680/mo</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 12px", backgroundColor: COLORS.greenLight + "44", borderRadius: 6 }}>
-                <div style={{ minWidth: 18, height: 18, borderRadius: "50%", backgroundColor: COLORS.green, color: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, marginTop: 1 }}>1</div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>Switch cleaning provider for 3 properties</div>
-                  <div style={{ fontSize: 11, color: COLORS.textSecondary, lineHeight: 1.5 }}>Sophie R. charges €65/clean for Apt. Masséna, Apt. Gambetta & Apt. Port. CleanPro quoted €45/clean — saves <span style={{ fontWeight: 600, color: COLORS.green }}>€360/mo</span></div>
+              {[
+                { num: 1, title: "Switch cleaning provider for 3 properties", desc: <>Sophie R. charges €65/clean for Apt. Masséna, Apt. Gambetta & Apt. Port. CleanPro quoted €45/clean — saves <span style={{ fontWeight: 600, color: COLORS.green }}>€360/mo</span></> },
+                { num: 2, title: "Renegotiate linen service contract", desc: <>Current rate is €12/set across 10 properties. Bulk discount available at €9/set — saves <span style={{ fontWeight: 600, color: COLORS.green }}>€180/mo</span></> },
+                { num: 3, title: "Cancel unused insurance on Apt. Libération", desc: <>Duplicate appliance cover active since Jan — original policy already includes it. Saves <span style={{ fontWeight: 600, color: COLORS.green }}>€140/mo</span></> },
+              ].map((item) => (
+                <div key={item.num} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 12px", backgroundColor: COLORS.greenLight + "44", borderRadius: 6, position: "relative" }}>
+                  <div style={{ minWidth: 18, height: 18, borderRadius: "50%", backgroundColor: COLORS.green, color: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, marginTop: 1 }}>{item.num}</div>
+                  <button style={{ position: "absolute", top: 6, right: 6, padding: "2px 6px", fontSize: 11, fontWeight: 500, backgroundColor: "transparent", color: COLORS.textSecondary, border: "none", borderRadius: 4, cursor: "pointer", lineHeight: 1 }}>✕</button>
+                  <div style={{ flex: 1, paddingRight: 20 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{item.title}</div>
+                    <div style={{ fontSize: 11, color: COLORS.textSecondary, lineHeight: 1.5 }}>{item.desc}</div>
+                    <div style={{ marginTop: 8 }}>
+                      <button style={{ padding: "5px 14px", fontSize: 11, fontWeight: 600, backgroundColor: COLORS.accent, color: COLORS.white, border: "none", borderRadius: 5, cursor: "pointer" }}>Approve</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 12px", backgroundColor: COLORS.greenLight + "44", borderRadius: 6 }}>
-                <div style={{ minWidth: 18, height: 18, borderRadius: "50%", backgroundColor: COLORS.green, color: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, marginTop: 1 }}>2</div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>Renegotiate linen service contract</div>
-                  <div style={{ fontSize: 11, color: COLORS.textSecondary, lineHeight: 1.5 }}>Current rate is €12/set across 10 properties. Bulk discount available at €9/set — saves <span style={{ fontWeight: 600, color: COLORS.green }}>€180/mo</span></div>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 12px", backgroundColor: COLORS.greenLight + "44", borderRadius: 6 }}>
-                <div style={{ minWidth: 18, height: 18, borderRadius: "50%", backgroundColor: COLORS.green, color: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, marginTop: 1 }}>3</div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>Cancel unused insurance on Apt. Libération</div>
-                  <div style={{ fontSize: 11, color: COLORS.textSecondary, lineHeight: 1.5 }}>Duplicate appliance cover active since Jan — original policy already includes it. Saves <span style={{ fontWeight: 600, color: COLORS.green }}>€140/mo</span></div>
-                </div>
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-              <button style={{ flex: 1, padding: "8px 0", fontSize: 12, fontWeight: 600, backgroundColor: COLORS.accent, color: COLORS.white, border: "none", borderRadius: 6, cursor: "pointer" }}>Apply all suggestions</button>
-              <button style={{ padding: "8px 14px", fontSize: 12, fontWeight: 500, backgroundColor: COLORS.bg, color: COLORS.textSecondary, border: `1px solid ${COLORS.border}`, borderRadius: 6, cursor: "pointer" }}>Dismiss</button>
+              ))}
             </div>
           </div>
         </div>
