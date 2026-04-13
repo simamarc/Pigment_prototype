@@ -2592,7 +2592,22 @@ export default function Dashboard() {
       </nav>
 
       {/* ─── Main Content ─── */}
-      <main style={{ flex: 1, overflow: "hidden", padding: "28px 32px", display: "flex", flexDirection: "column" }}>
+      <main style={{ flex: 1, overflow: "hidden", padding: "28px 32px", display: "flex", flexDirection: "column", position: "relative" }}>
+        {!panelOpen && (
+          <button
+            onClick={() => setPanelOpen(true)}
+            style={{
+              position: "absolute", top: 16, right: 16, zIndex: 10,
+              width: 36, height: 36, borderRadius: 10,
+              border: `1px solid ${COLORS.border}`, backgroundColor: COLORS.white,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+            }}
+            title="Open chat"
+          >
+            <span style={{ fontSize: 18, color: COLORS.accent }}>✦</span>
+          </button>
+        )}
         {currentPage === "Finances" ? (
           <div style={{ flex: 1, overflowY: "auto", marginRight: -32, paddingRight: 32 }}>
             <FinancesPage
