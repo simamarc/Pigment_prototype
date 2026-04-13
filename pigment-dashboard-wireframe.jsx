@@ -46,7 +46,7 @@ const initialProperties = [
     urgency: "high",
     detail: "Cleaner cancelled · Backup found: Lea (4.8★) · Starts 10:30",
     agent: "Operations Agent",
-    actionLabel: "Approve new cleaner",
+    actionLabel: "Approve cleaner",
     checkOut: "10:00",
     checkIn: "16:00",
     nights: 3,
